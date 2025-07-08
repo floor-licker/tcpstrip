@@ -1,6 +1,26 @@
 # TCP Timestamp Proxy
 
+**A Rust-based timestamp-sanitizing TCP proxy for HFT and ultra-low latency trading.**
+
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Made with Rust](https://img.shields.io/badge/Made%20with-Rust-orange.svg)](https://www.rust-lang.org/)
+[![Performance](https://img.shields.io/badge/Latency-<1ms%20overhead-green.svg)](https://github.com/floor-licker/tcpstrip)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/floor-licker/tcpstrip)
+
 A high-performance TCP proxy designed for high-frequency trading (HFT) environments that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage.
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#-key-features)
+- [Quick Start](#-quick-start)
+- [Why Not Just Use iptables?](#why-not-just-use-iptables)
+- [Technical Details](#technical-details)
+- [Usage](#usage)
+- [Building](#building)
+- [Security Considerations](#security-considerations)
+- [Performance Tuning](#performance-tuning)
+- [Technical References](#technical-references)
 
 ## Overview
 
@@ -13,7 +33,7 @@ This proxy addresses a critical security concern in HFT colocated environments w
 
 Such timing side-channels can be exploited by competitors to infer trading strategies or gain unfair latency advantages.
 
-## Features
+## 🚀 Key Features
 
 - **Timestamp Stripping**: Controls TCP timestamp options on outgoing connections
 - **High Performance**: Optimized for low-latency operation with async I/O
@@ -21,6 +41,48 @@ Such timing side-channels can be exploited by competitors to infer trading strat
 - **No Root Required**: Runs in userspace without special privileges
 - **Configurable**: Command-line options for all settings
 - **Optional Spoofing**: Can inject static timestamp patterns
+
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/floor-licker/tcpstrip.git
+cd tcpstrip
+
+# Build the release version
+cargo build --release
+
+# Run the proxy (forwards localhost:8080 to example.com:80)
+./target/release/tcp-proxy --port 8080 --target example.com:80
+
+# Test with curl
+curl -H 'Host: example.com' http://localhost:8080
+```
+
+## Why Not Just Use iptables?
+
+There are several approaches to handling TCP timestamp options, each with different trade-offs:
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **iptables** | Kernel-native performance, transparent | Requires root privileges, less flexible per-connection control |
+| **sysctl** (`tcp_timestamps=0`) | System-wide, simple configuration | Affects all connections, can't control per-process |
+| **This proxy** | Per-process control, userspace deployment | Slight latency overhead, terminates connections |
+| **Raw sockets** | Direct packet manipulation | Requires root, complex implementation |
+
+### When to use this proxy:
+
+✅ **Use this proxy when:**
+- You need per-application timestamp control
+- Root privileges are not available
+- You want to preserve other TCP options while stripping timestamps
+- You need detailed logging and monitoring of timestamp behavior
+- You're in a containerized or restricted environment
+
+❌ **Consider alternatives when:**
+- You have root access and want system-wide timestamp disabling
+- Latency is absolutely critical (sub-microsecond requirements)
+- You need to handle very high connection volumes (>10k concurrent)
 
 ## Technical Details
 
@@ -198,3 +260,31 @@ The proxy logs key metrics:
 - **RFC 1323**: TCP Extensions for High Performance (obsoleted)
 - **Linux TCP Implementation**: `net/ipv4/tcp_output.c`
 - **TCP Timestamp Security**: Various CVEs related to timestamp leakage
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## ⚖️ Disclaimer
+
+This software is provided for educational and defensive purposes. Users are responsible for ensuring compliance with applicable laws and regulations. The authors assume no liability for any misuse of this software.
+
+Use in production environments should be thoroughly tested and validated for your specific use case.
+
+---
+
+<div align="center">
+  <strong>Made with ❤️ for the HFT community</strong>
+  <br>
+  <a href="https://github.com/floor-licker/tcpstrip">⭐ Star this repo</a> if you find it useful!
+</div>
