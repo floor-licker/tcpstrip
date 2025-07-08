@@ -1,0 +1,23 @@
+[package]
+name = "tcp-proxy"
+version = "0.1.0"
+edition = "2021"
+authors = ["HFT Team"]
+description = "High-performance TCP proxy for stripping TCP timestamp options"
+license = "MIT"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+socket2 = "0.5"
+clap = { version = "4.0", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+bytes = "1.0"
+libc = "0.2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+debug = false 
