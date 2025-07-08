@@ -1,3 +1,5 @@
+<div align="center">
+
 # TCP Timestamp Proxy
 
 **A Rust-based timestamp-sanitizing TCP proxy for HFT and ultra-low latency trading.**
@@ -6,6 +8,10 @@
 [![Made with Rust](https://img.shields.io/badge/Made%20with-Rust-orange.svg)](https://www.rust-lang.org/)
 [![Performance](https://img.shields.io/badge/Latency-<1ms%20overhead-green.svg)](https://github.com/floor-licker/tcpstrip)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/floor-licker/tcpstrip)
+
+</div>
+
+---
 
 A high-performance TCP proxy designed for high-frequency trading (HFT) environments that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage.
 
@@ -42,6 +48,8 @@ Such timing side-channels can be exploited by competitors to infer trading strat
 - **Configurable**: Command-line options for all settings
 - **Optional Spoofing**: Can inject static timestamp patterns
 
+<div align="center">
+
 ## 🚀 Quick Start
 
 ```bash
@@ -58,6 +66,8 @@ cargo build --release
 # Test with curl
 curl -H 'Host: example.com' http://localhost:8080
 ```
+
+</div>
 
 ## Why Not Just Use iptables?
 
