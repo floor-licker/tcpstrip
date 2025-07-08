@@ -15,7 +15,7 @@
 
 A high-performance TCP proxy designed for high-frequency trading (HFT) environments that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Key Features](#-key-features)
@@ -39,7 +39,7 @@ This proxy addresses a critical security concern in HFT colocated environments w
 
 Such timing side-channels can be exploited by competitors to infer trading strategies or gain unfair latency advantages.
 
-## 🚀 Key Features
+## Key Features
 
 - **Timestamp Stripping**: Controls TCP timestamp options on outgoing connections
 - **High Performance**: Optimized for low-latency operation with async I/O
@@ -50,7 +50,7 @@ Such timing side-channels can be exploited by competitors to infer trading strat
 
 <div align="center">
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Clone the repository
@@ -75,24 +75,49 @@ There are several approaches to handling TCP timestamp options, each with differ
 
 | Approach | Pros | Cons |
 |----------|------|------|
-| **iptables** | Kernel-native performance, transparent | Requires root privileges, less flexible per-connection control |
-| **sysctl** (`tcp_timestamps=0`) | System-wide, simple configuration | Affects all connections, can't control per-process |
-| **This proxy** | Per-process control, userspace deployment | Slight latency overhead, terminates connections |
-| **Raw sockets** | Direct packet manipulation | Requires root, complex implementation |
+| **iptables** | Kernel-native performance, transparent | Requires root + firewall access, can only drop/block, no spoofing |
+| **sysctl** (`tcp_timestamps=0`) | System-wide, simple configuration | Affects all connections, requires root, no per-process control |
+| **This proxy** | Per-process control, userspace deployment, spoofing support | Slight latency overhead, terminates connections |
+| **Raw sockets** | Direct packet manipulation | Requires root, complex implementation, limited portability |
+| **eBPF/tc** | Advanced packet manipulation | Requires root + advanced expertise, kernel version dependencies |
+
+### Cloud & Infrastructure Limitations
+
+**Important considerations for modern deployments:**
+
+🚫 **iptables/netfilter limitations:**
+- **Can only DROP or BLOCK** packets with timestamp options - cannot modify or spoof them
+- **No fine-grained TCP option manipulation** without writing kernel modules or complex eBPF programs
+- **Requires firewall rule access** - often unavailable in cloud/managed environments
+
+☁️ **Cloud & Kubernetes environments:**
+- **No firewall access** in most managed Kubernetes clusters (GKE, EKS, AKS)
+- **Container security policies** prevent iptables modifications
+- **Shared infrastructure** where you don't control the host networking stack
+- **Service mesh restrictions** that limit kernel-level network changes
+
+🔧 **Advanced alternatives require expertise:**
+- **tc (Traffic Control)** + **eBPF**: Complex to implement, requires deep kernel networking knowledge
+- **Kernel modules**: Security risk, difficult to deploy in production environments
+- **DPDK/userspace networking**: Overkill for most HFT applications, expensive to implement
 
 ### When to use this proxy:
 
-✅ **Use this proxy when:**
-- You need per-application timestamp control
-- Root privileges are not available
-- You want to preserve other TCP options while stripping timestamps
-- You need detailed logging and monitoring of timestamp behavior
-- You're in a containerized or restricted environment
+ **Use this proxy when:**
+- **Cloud/Kubernetes deployments** where firewall access is restricted
+- **Containerized environments** with security policies preventing kernel modifications
+- **Shared infrastructure** where you don't control host networking
+- **Need timestamp spoofing** with custom patterns (impossible with iptables)
+- **Per-application control** without affecting other services
+- **Root privileges are not available** or not desired
+- **Fine-grained TCP option manipulation** beyond simple blocking
+- **Detailed logging and monitoring** of timestamp behavior
 
-❌ **Consider alternatives when:**
-- You have root access and want system-wide timestamp disabling
-- Latency is absolutely critical (sub-microsecond requirements)
-- You need to handle very high connection volumes (>10k concurrent)
+ **Consider alternatives when:**
+- You have **full root + firewall access** and want simple system-wide disabling
+- **Latency is absolutely critical** (sub-microsecond requirements)
+- You need to handle **very high connection volumes** (>10k concurrent)
+- **Simple blocking** (not spoofing) is sufficient for your use case
 
 ## Technical Details
 
@@ -271,7 +296,7 @@ The proxy logs key metrics:
 - **Linux TCP Implementation**: `net/ipv4/tcp_output.c`
 - **TCP Timestamp Security**: Various CVEs related to timestamp leakage
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
@@ -281,13 +306,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## ⚖️ Disclaimer
-
-This software is provided for educational and defensive purposes. Users are responsible for ensuring compliance with applicable laws and regulations. The authors assume no liability for any misuse of this software.
 
 Use in production environments should be thoroughly tested and validated for your specific use case.
 
