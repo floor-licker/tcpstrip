@@ -2,7 +2,7 @@
 
 # TCP Timestamp Proxy
 
-**A Rust-based timestamp-sanitizing TCP proxy for HFT and ultra-low latency trading.**
+**A Rust-based timestamp sanitizing and spoofing TCP proxy without requiring root, kernel modifications, or system-wide changes.**
 
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Made with Rust](https://img.shields.io/badge/Made%20with-Rust-orange.svg)](https://www.rust-lang.org/)
@@ -13,10 +13,10 @@
 
 ---
 
-A high-performance TCP proxy that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage. For when you want to control or eliminate TCP timestamp behavior for a specific latency-critical connection without requiring root, kernel modifications, or system-wide changes.
+A high-performance TCP proxy that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage. For when you want to control or eliminate TCP timestamp behavior for a specific latency-critical connection.
 
-## Use-case
-When:
+## Use-cases
+
 - You're running in colocated racks managed by a hosting provider
 - You're deploying inside a containerized infrastructure
 - You're on shared or locked-down machines (like at exchange proximity sites)
