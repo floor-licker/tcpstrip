@@ -13,7 +13,19 @@
 
 ---
 
-A high-performance TCP proxy designed for high-frequency trading (HFT) environments that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage.
+A high-performance TCP proxy that strips TCP Timestamp options (TSopt) from connections to prevent timing information leakage. For when you want to control or eliminate TCP timestamp behavior for a specific latency-critical connection without requiring root, kernel modifications, or system-wide changes.
+
+## Use-case
+When:
+- You're running in colocated racks managed by a hosting provider
+- You're deploying inside a containerized infrastructure
+- You're on shared or locked-down machines (like at exchange proximity sites)
+- You don't have root privileges or access to firewall rules
+- You want to spoof timestamps, not just strip them
+- You want to run in userspace with no root access required
+- You want to simulate specific kernel behaviour (e.g., Linux 5.10 vs 5.4)
+- You're building a deception layer to confuse timing-based reconnaissance
+- You have monitoring tools that rely on timestamps (and should remain unaffected)
 
 ## Table of Contents
 
@@ -48,8 +60,6 @@ Such timing side-channels can be exploited by competitors to infer trading strat
 - **Configurable**: Command-line options for all settings
 - **Optional Spoofing**: Can inject static timestamp patterns
 
-<div align="center">
-
 ## Quick Start
 
 ```bash
@@ -66,8 +76,6 @@ cargo build --release
 # Test with curl
 curl -H 'Host: example.com' http://localhost:8080
 ```
-
-</div>
 
 ## Why Not Just Use iptables?
 
